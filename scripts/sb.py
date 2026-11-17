@@ -164,7 +164,10 @@ def cmd_day(data, args):
         text = text.replace("{date}", args.date).replace("{reviewer}", args.by).replace("{rows}", rows)
         log.parent.mkdir(parents=True, exist_ok=True)
         log.write_text(text)
-        print("created", log.relative_to(ROOT))
+        print("created", rel(log))
+    else:
+        for added in add_log_rows(log, args.ids):
+            print("added row", added)
 
     template = (ROOT / "templates" / "review.md").read_text()
     for skill_id in args.ids:
@@ -177,7 +180,25 @@ def cmd_day(data, args):
         text = text.replace("{commit}", state["repos"][row["repo"]]["commit"])
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text)
-        print("created", path.relative_to(ROOT))
+        print("created", rel(path))
+
+
+def add_log_rows(log, ids):
+    """Add a row for every id that has no row yet. Returns the ids added."""
+    lines = log.read_text().splitlines()
+    present = set()
+    for line in lines:
+        if line.startswith("|"):
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if cells and cells[0] and cells[0] != "skill":
+                present.add(cells[0].strip("` "))
+    missing = [i for i in ids if i not in present]
+    if not missing:
+        return []
+    last = max(index for index, line in enumerate(lines) if line.startswith("|"))
+    lines[last + 1 : last + 1] = [f"| {i} |  |  |  |  |" for i in missing]
+    log.write_text("\n".join(lines) + "\n")
+    return missing
 
 
 def cmd_tokens(data, args):
@@ -405,7 +426,7 @@ def review_errors(review, row, state):
     if verdict and pinned and review["source_commit"] and review["source_commit"] != pinned:
         out.append(f"source_commit {review['source_commit']} is not the pinned commit {pinned}; the verdict is stale")
     if not review["depth"]:
-        out.append("no skim/desk/trial pass in any log of this reviewer")
+        out.append("no skim/desk/trial pass in any log of this reviewer; set the depth in the log row first")
     for field in ("setup", "tokens"):
         if review[field] and review[field] not in "01234":
             out.append(f"{field} must be 0 to 4")

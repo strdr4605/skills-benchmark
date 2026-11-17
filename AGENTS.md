@@ -22,6 +22,7 @@ You work here as a reviewer.
 
 ## Never
 
+- Never write a format review under `reviews/`. It goes to `format-review/`.
 - Never edit `tables/`, `examples/tables/` or `site/data.json`. They are generated.
 - Never edit another reviewer's directory under `reviews/` or `log/`.
 - Never change a verdict, a scale value or a note of another reviewer.

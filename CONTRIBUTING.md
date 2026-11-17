@@ -3,6 +3,15 @@
 This repository holds one opinion per reviewer per skill.
 Reviews never overwrite each other. The owner merges.
 
+## First: check the format
+
+Before you benchmark a skill, check that the format works for you.
+Read [format-review/README.md](format-review/README.md).
+It holds the checklist and a dry run that touches no real data.
+
+Write your answer in `format-review/<handle>-<YYYY-MM-DD>.md` and open a pull
+request. A skill record is the wrong place for it.
+
 ## Two reviewers, one repository
 
 | Path | Writer |
