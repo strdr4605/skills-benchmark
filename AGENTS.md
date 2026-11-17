@@ -16,7 +16,7 @@ You work here as a reviewer.
 ## Write only these paths
 
 - `reviews/<your-handle>/<skill-id>.md` — one record per skill.
-- `log/<your-handle>/<YYYY-MM-DD>.md` — one log per evening.
+- `log/<your-handle>/<YYYY-MM-DD>.md` — one log per day. One row group per session.
 - `catalog/skills.csv` — only rows of the repos where you are the screener.
   The screener per repo is in `catalog/repos.csv`.
 
@@ -33,6 +33,9 @@ You work here as a reviewer.
 - Never push secrets, tokens or cookies. They belong in the upstream repo, not here.
 
 ## Depth and time box
+
+One session holds 2 to 5 skills and at most 60 minutes.
+A skill can stop in one session and continue in the next one.
 
 | Depth | Box | Verdicts it allows |
 |---|---|---|

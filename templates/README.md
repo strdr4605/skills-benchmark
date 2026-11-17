@@ -139,12 +139,14 @@ The script computes one team verdict per skill.
 
 ## Daily log (`log.md`)
 
-One file per reviewer per evening: `log/<handle>/<YYYY-MM-DD>.md`.
+One file per reviewer per day: `log/<handle>/<YYYY-MM-DD>.md`.
 The first table is the data. The script reads only that table.
+A day holds many sessions. One session holds 2 to 5 skills.
 
 | Column | Meaning |
 |---|---|
 | `skill` | Skill id. |
+| `session` | Session id in that day: `s1`, `s2`, `s3`. |
 | `depth` | `skim`, `desk`, `trial` or `postponed`. |
 | `min` | Minutes spent. Integer. Postponed is usually `0` to `5`. |
 | `next` | For `postponed`: a date `YYYY-MM-DD` or a blocker in words. Else empty. |

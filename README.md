@@ -36,7 +36,7 @@ catalog/
   synonyms.csv          names that mean the same job
   order.csv             the best-practice order shown under the board
 reviews/<handle>/<id>.md   one benchmark record per reviewer per skill
-log/<handle>/<date>.md     one daily log per reviewer per evening
+log/<handle>/<date>.md     one log per reviewer per day, one row per session row
 templates/                 review.md, log.md, README.md (field definitions and scales)
 method/                    how to screen, scope, benchmark, work in pairs, reuse
 scripts/sb.py              import, fetch, pick, day, tokens, check, build
@@ -46,9 +46,12 @@ examples/                  a small filled instance: 16 rows, 6 records, 3 logs
 .github/                   CI check, build and Pages deploy, CODEOWNERS, PR template
 ```
 
-## One evening
+## One session
 
-The owner has 2 hours. The queue says what is next.
+Work comes in short sessions.
+One session holds 2 to 5 skills and fits in 60 minutes.
+A skill can stop in one session and continue in the next one.
+The queue says what is next.
 
 ```sh
 jj git fetch && jj new main@origin
@@ -56,10 +59,15 @@ python3 scripts/sb.py pick --by owner
 #   blocked        superpowers.systematic-debugging    Find the root cause before a fix
 #   P1             karpathy.karpathy-guidelines        Always-on coding guidelines for small, simple diffs
 #   P2             mattpocock.diagnosing-bugs          Diagnose a bug with a hypothesis loop
-python3 scripts/sb.py day --by owner superpowers.systematic-debugging karpathy.karpathy-guidelines mattpocock.diagnosing-bugs
+python3 scripts/sb.py day --by owner superpowers.systematic-debugging karpathy.karpathy-guidelines
 #   created log/owner/2026-11-18.md
 #   created reviews/owner/superpowers.systematic-debugging.md  (and the others)
+#   session s1
 ```
+
+`day` numbers the session. It writes one row per skill into the log of the day.
+The next session on the same day gets the next id: `s2`, `s3`.
+Pass `--session s3` to name it yourself.
 
 Then, for each skill, inside its time box:
 
@@ -70,11 +78,11 @@ Then, for each skill, inside its time box:
 | `trial` | 60 min | Use it on one real task in the work or the personal repo. |
 | `postponed` | 5 min | Write why and until when. That is a result too. |
 
-Write `depth` and `min` in the log row. Then:
+Write `session`, `depth` and `min` in the log row. Then:
 
 ```sh
 python3 scripts/sb.py check
-jj describe -m "owner 2026-11-18: 3 skills (1 trial, 1 desk, 1 skim)"
+jj describe -m "owner 2026-11-18 s1: 2 skills (1 desk, 1 skim)"
 jj git push --named owner/2026-11-18=@
 gh pr create --base main --head owner/2026-11-18 --fill
 ```

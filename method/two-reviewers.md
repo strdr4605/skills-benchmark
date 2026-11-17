@@ -21,7 +21,8 @@ Handles map to GitHub logins in `catalog/reviewers.csv`.
 
 ## Branches
 
-The repo uses jj. Each evening is one bookmark and one PR.
+The repo uses jj. Each day is one bookmark and one PR.
+Sessions inside that day are rows in the log of that day.
 
 | Bookmark | Content | Merged by |
 |---|---|---|
@@ -32,9 +33,9 @@ The repo uses jj. Each evening is one bookmark and one PR.
 `main` is protected. Nobody pushes to it directly, except the CI bot that rebuilds `tables/`.
 Allow `github-actions[bot]` to bypass the protection rule. That is the one setup step for it.
 
-Merge with "Squash and merge". One evening becomes one commit on `main`.
+Merge with "Squash and merge". One day becomes one commit on `main`.
 
-The owner does not need the friend's approval for an own evening PR.
+The owner does not need the friend's approval for an own day PR.
 The friend's PRs need the owner's approval, because the owner is the maintainer.
 This is a merge rule, not a quality gate. The quality gate is the second review file.
 

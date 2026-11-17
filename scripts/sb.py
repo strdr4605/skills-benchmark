@@ -47,8 +47,9 @@ SKILL_COLUMNS = [
     "stage", "category", "use_case", "target", "priority", "final",
 ]
 BATCH_PREFIXES = ("screen:", "sweep:")  # log rows for stage 1 and 2 batch work
-DAY_MINUTES_WARN = 150
-DAY_SKILLS_MAX = 10
+SESSION_MINUTES_WARN = 60
+SESSION_SKILLS_MAX = 5
+DAY_MINUTES_WARN = 300
 
 
 def main():
@@ -66,6 +67,7 @@ def main():
     p = sub.add_parser("day")
     p.add_argument("--by", required=True)
     p.add_argument("--date", default=today())
+    p.add_argument("--session", default=None, help="session id in the log, e.g. s2 (default: next free id)")
     p.add_argument("ids", nargs="+")
 
     p = sub.add_parser("tokens")
@@ -153,21 +155,23 @@ def cmd_day(data, args):
     if unknown:
         print("unknown skill ids:", ", ".join(unknown))
         return 1
-    if len(args.ids) > DAY_SKILLS_MAX:
-        print(f"pick at most {DAY_SKILLS_MAX} skills per day")
+    if len(args.ids) > SESSION_SKILLS_MAX:
+        print(f"pick at most {SESSION_SKILLS_MAX} skills per session")
         return 1
 
     log = data / "log" / args.by / f"{args.date}.md"
+    session = args.session or next_session(log)
     if not log.exists():
-        rows = "\n".join(f"| {i} |  |  |  |  |" for i in args.ids)
+        rows = "\n".join(f"| {i} | {session} |  |  |  |  |" for i in args.ids)
         text = (ROOT / "templates" / "log.md").read_text()
         text = text.replace("{date}", args.date).replace("{reviewer}", args.by).replace("{rows}", rows)
         log.parent.mkdir(parents=True, exist_ok=True)
         log.write_text(text)
         print("created", rel(log))
     else:
-        for added in add_log_rows(log, args.ids):
+        for added in add_log_rows(log, args.ids, session):
             print("added row", added)
+    print("session", session)
 
     template = (ROOT / "templates" / "review.md").read_text()
     for skill_id in args.ids:
@@ -183,22 +187,60 @@ def cmd_day(data, args):
         print("created", rel(path))
 
 
-def add_log_rows(log, ids):
+def add_log_rows(log, ids, session):
     """Add a row for every id that has no row yet. Returns the ids added."""
-    lines = log.read_text().splitlines()
+    text = log.read_text()
+    lines = text.splitlines()
+    header = table_header(text)
+    names = {name: i for i, name in enumerate(header)}
     present = set()
-    for line in lines:
-        if line.startswith("|"):
-            cells = [c.strip() for c in line.strip().strip("|").split("|")]
-            if cells and cells[0] and cells[0] != "skill":
-                present.add(cells[0].strip("` "))
+    for cells in table_rows(text):
+        if cells and cells[0] and cells[0] != "skill":
+            present.add(cells[0].strip("` "))
     missing = [i for i in ids if i not in present]
     if not missing:
         return []
-    last = max(index for index, line in enumerate(lines) if line.startswith("|"))
-    lines[last + 1 : last + 1] = [f"| {i} |  |  |  |  |" for i in missing]
+    if "session" not in names:
+        lines = add_session_column(lines)
+    last = max(position for position, line in enumerate(lines) if line.startswith("|"))
+    lines[last + 1 : last + 1] = [f"| {i} | {session} |  |  |  |  |" for i in missing]
     log.write_text("\n".join(lines) + "\n")
     return missing
+
+
+def add_session_column(lines):
+    """Give an old log table the session column."""
+    out = []
+    for line in lines:
+        if line.startswith("|"):
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if cells and not set("".join(cells)) <= set("-: "):
+                if cells[0] == "skill":
+                    line = "| " + " | ".join(["skill", "session"] + cells[1:]) + " |"
+                else:
+                    line = "| " + " | ".join([cells[0], ""] + cells[1:]) + " |"
+        out.append(line)
+    return out
+
+
+def next_session(log):
+    """The next free session id in one log file: s1, s2, s3."""
+    if not log.exists():
+        return "s1"
+    text = log.read_text()
+    names = {name: i for i, name in enumerate(table_header(text))}
+    if "session" not in names:
+        return "s1"
+    used = []
+    for cells in table_rows(text):
+        position = names["session"]
+        value = cells[position] if position < len(cells) else ""
+        if value:
+            used.append(value)
+    numbers = [int(match.group(1)) for match in (re.match(r"[a-zA-Z]*(\d+)$", v) for v in used) if match]
+    if numbers:
+        return f"s{max(numbers) + 1}"
+    return f"s{len(set(used)) + 1}"
 
 
 def cmd_tokens(data, args):
@@ -409,10 +451,20 @@ def validate(state):
     for where, entries in by_day.items():
         minutes = sum(e["minutes"] for e in entries)
         if minutes > DAY_MINUTES_WARN:
-            warnings.append(f"{where}: {minutes} min is more than one evening ({DAY_MINUTES_WARN})")
+            warnings.append(f"{where}: {minutes} min in one day ({DAY_MINUTES_WARN})")
+
+    by_session = {}
+    for entry in state["logs"]:
+        key = (entry["date"], entry["by"], entry["session"] or "s1")
+        by_session.setdefault(key, []).append(entry)
+    for (date, by, session), entries in by_session.items():
+        where = f"log/{by}/{date}.md session {session}"
+        minutes = sum(e["minutes"] for e in entries)
+        if minutes > SESSION_MINUTES_WARN:
+            warnings.append(f"{where}: {minutes} min is more than one session ({SESSION_MINUTES_WARN})")
         count = sum(1 for e in entries if not e["skill"].startswith(BATCH_PREFIXES))
-        if count > DAY_SKILLS_MAX:
-            warnings.append(f"{where}: {count} skills; the cadence is 1 to {DAY_SKILLS_MAX}")
+        if count > SESSION_SKILLS_MAX:
+            warnings.append(f"{where}: {count} skills; one session holds at most {SESSION_SKILLS_MAX}")
 
     return errors, warnings
 
@@ -630,14 +682,15 @@ def render_clusters(state, skills):
 def render_days(state):
     days = {}
     for e in state["logs"]:
-        d = days.setdefault((e["date"], e["by"]), {"min": 0, "n": 0, **{k: 0 for k in LOG_DEPTHS}})
+        d = days.setdefault((e["date"], e["by"]), {"min": 0, "n": 0, "sessions": set(), **{k: 0 for k in LOG_DEPTHS}})
         d["min"] += e["minutes"]
-        d["n"] += 1
+        d["n"] += 0 if e["skill"].startswith(BATCH_PREFIXES) else 1
+        d["sessions"].add(e["session"] or "s1")
         d[e["depth"]] = d.get(e["depth"], 0) + 1
-    rows = [[f"[{d}](../log/{by}/{d}.md)", by, v["n"], v["min"]] + [v[k] for k in LOG_DEPTHS]
+    rows = [[f"[{d}](../log/{by}/{d}.md)", by, len(v["sessions"]), v["n"], v["min"]] + [v[k] for k in LOG_DEPTHS]
             for (d, by), v in sorted(days.items(), reverse=True)]
-    return header("Days", "One row per daily log. Cost of the benchmark, visible.") + table(
-        ["date", "reviewer", "skills", "minutes"] + LOG_DEPTHS, rows)
+    return header("Days", "One row per daily log. Sessions, skills, minutes and depth mix.") + table(
+        ["date", "reviewer", "sessions", "skills", "minutes"] + LOG_DEPTHS, rows)
 
 
 # ---------------------------------------------------------------- board
@@ -668,7 +721,7 @@ def board_data(state):
         "use_case": r["use_case"], "target": r["target"], "priority": r["priority"],
         "status": r["status"], "verdict": r["verdict"],
         "reviews": {by: review_out(by, rv) for by, rv in r["reviews"].items()},
-        "passes": [[p["date"], p["by"], p["depth"]] for p in r["passes"]],
+        "passes": [[p["date"], p["session"] or "s1", p["by"], p["depth"]] for p in r["passes"]],
     } for r in sorted(kept, key=lambda r: (r["priority"] or "9", r["id"]))]
 
     counts = {}
@@ -731,15 +784,34 @@ def load_logs(data):
     for path in sorted((data / "log").glob("*/*.md")):
         if not re.match(r"\d{4}-\d{2}-\d{2}\.md$", path.name):
             continue
-        for cells in table_rows(path.read_text()):
+        text = path.read_text()
+        index = {name: i for i, name in enumerate(table_header(text))}
+        for cells in table_rows(text):
             if len(cells) < 5 or not cells[0]:
                 continue
+
+            def cell(name):
+                position = index.get(name)
+                return cells[position] if position is not None and position < len(cells) else ""
+
             out.append({
                 "date": path.stem, "by": path.parent.name, "skill": cells[0].strip("` "),
-                "depth": cells[1], "minutes": int(cells[2]) if cells[2].isdigit() else 0,
-                "next": cells[3], "note": cells[4],
+                "session": cell("session"),
+                "depth": cell("depth"), "minutes": int(cell("min")) if cell("min").isdigit() else 0,
+                "next": cell("next"), "note": cell("note"),
             })
     return out
+
+
+def table_header(text):
+    """The header cells of the first table in the text."""
+    for line in text.splitlines():
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if cells and not set("".join(cells)) <= set("-: "):
+            return cells
+    return []
 
 
 def table_rows(text):

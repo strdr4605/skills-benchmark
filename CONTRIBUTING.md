@@ -25,7 +25,11 @@ request. A skill record is the wrong place for it.
 A pull request that touches the other person's directory fails the check job.
 That is the rule that keeps two opinions safe.
 
-## One evening
+## One session
+
+Work comes in short sessions. One session holds 2 to 5 skills and fits in 60
+minutes. A day can hold many sessions. A skill can stop in one session and
+continue in the next one.
 
 ```sh
 git clone git@github.com:strdr4605/skills-benchmark.git
@@ -39,10 +43,10 @@ python3 scripts/sb.py pick --by friend
 python3 scripts/sb.py day --by friend superpowers.systematic-debugging mattpocock.diagnosing-bugs
 #   created log/friend/2026-11-17.md
 #   created reviews/friend/superpowers.systematic-debugging.md
+#   session s1
 ```
 
-Pick 1 to 10 skills. Use 10 only for short screens.
-One evening is about two hours. The check warns above 150 minutes or 10 skills.
+The next session on the same day gets `s2`. Use `--session s3` to name it.
 
 Then, per skill:
 
@@ -52,6 +56,8 @@ Then, per skill:
 | `desk` | 30 min | Read the whole skill directory and its license. Measure tokens. |
 | `trial` | 60 min | Use it on one real task in the work repo or the personal repo. |
 | `postponed` | 5 min | Write why and until when. A postponement is a result. |
+
+Stop at the box. Write `session`, `depth` and `min` in the log row.
 
 ## Write your review
 

@@ -100,7 +100,7 @@ function openDetail(id) {
   const summaries = Object.entries(s.reviews).filter(([, r]) => r.summary)
     .map(([by, r]) => `<p><b>${esc(by)}:</b> ${esc(r.summary)}</p>`).join("");
   const uses = Object.values(s.reviews).flatMap((r) => r.use_cases);
-  const passes = s.passes.map((p) => `${p[0]} ${p[1]} ${p[2]}`).join("<br>");
+  const passes = s.passes.map((p) => `${p[0]} ${p[1]} ${p[2]} ${p[3]}`).join("<br>");
   $("detail-body").innerHTML = `<div class="detail">
     <h3>${esc(s.id)}</h3>
     <p class="meta">${esc(s.stage)} / ${esc(s.category)} · P${esc(s.priority || "-")} · ${esc(s.target || "-")}
