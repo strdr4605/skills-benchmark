@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills Benchmark Board</title>
+<link rel="stylesheet" href="board.css">
+</head>
+<body>
+<header>
+  <h1 id="title">skills-benchmark</h1>
+  <p id="funnel" class="funnel"></p>
+  <form id="filters" class="filters" onsubmit="return false">
+    <input id="q" type="search" placeholder="Search id, use case, cluster" aria-label="Search">
+    <label>View <select id="who"></select></label>
+    <span id="verdicts" class="toggles" aria-label="Verdicts"></span>
+  </form>
+</header>
+
+<main id="board" class="board" aria-live="polite"></main>
+
+<section class="order">
+  <h2>Best-practice order</h2>
+  <ol id="order"></ol>
+</section>
+
+<footer id="foot"></footer>
+
+<dialog id="detail">
+  <form method="dialog"><button class="close" aria-label="Close">×</button></form>
+  <div id="detail-body"></div>
+</dialog>
+
+<script src="board.js"></script>
+</body>
+</html>

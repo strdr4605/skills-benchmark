@@ -1,0 +1,8 @@
+stage,name,not_covered
+plan,Plan,No kept skill writes a step-by-step plan yet.
+design,Design,Nothing scoped yet in the example.
+build,Build,
+test,Test,No browser QA skill reviewed yet.
+deploy,Deploy,No jj-aware commit or PR skill found so far.
+maintain,Maintain,
+anytime,Any-time,

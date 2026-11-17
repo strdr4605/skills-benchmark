@@ -1,0 +1,8 @@
+stage,name,not_covered
+plan,Plan,
+design,Design,
+build,Build,
+test,Test,
+deploy,Deploy,
+maintain,Maintain,
+anytime,Any-time,

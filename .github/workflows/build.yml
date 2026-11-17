@@ -1,0 +1,46 @@
+# One workflow, two jobs.
+# On a PR: validate the sources and the ownership rules. No generated files.
+# On main: rebuild tables/ (bot commit) and deploy the board to GitHub Pages.
+name: build
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python3 scripts/sb.py check --changed-by "${{ github.event.pull_request.user.login }}" --base "origin/${{ github.base_ref }}"
+      - run: python3 scripts/sb.py --data examples check
+
+  publish:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/sb.py build
+      - run: python3 scripts/sb.py --data examples build --site site/example/data.json
+      - name: Commit regenerated tables
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tables examples/tables
+          git diff --cached --quiet || { git commit -m "chore(tables): rebuild [skip ci]"; git push; }
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4

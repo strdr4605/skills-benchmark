@@ -1,0 +1,15 @@
+name,location,category,note
+herdr,~/.pi/agent/skills,orchestration,Agent orchestration (herdr).
+herdr-app,~/.pi/agent/skills,orchestration,Drives the Herdr.app window.
+herdr-core,~/.pi/agent/skills,orchestration,"Spawn, message, wait for agents."
+pr-visual-recap,~/.pi/agent/skills,vcs-pr,Visual recap in the PR body.
+grilling,~/.agents/skills,requirements,Interview the user before work. Compare with mattpocock.grilling.
+prototype,~/.agents/skills,prototyping,Throwaway prototype. Compare with mattpocock.prototype.
+ponytail,ponytail family,,"lite / full / ultra. Set category on first overlap check."
+ponytail-review,ponytail family,,Set category on first overlap check.
+ponytail-audit,ponytail family,,Set category on first overlap check.
+ponytail-debt,ponytail family,,Set category on first overlap check.
+ponytail-gain,ponytail family,,Set category on first overlap check.
+ponytail-help,ponytail family,,Set category on first overlap check.
+surf,surf-cli,browser-qa,Browser work.
+deep-x-research,surf-cli,research,Deep research through surf.

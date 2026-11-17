@@ -1,0 +1,4 @@
+# Replace the two handles once. Last matching line wins.
+*                 @strdr4605
+/reviews/friend/  @FRIEND_GITHUB
+/log/friend/      @FRIEND_GITHUB

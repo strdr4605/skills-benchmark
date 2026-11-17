@@ -1,0 +1,5 @@
+step,ref,why
+1,mattpocock.grilling,Agree on the problem before any plan.
+2,karpathy.karpathy-guidelines,Keep the diff small while you build.
+3,tdd,Write the failing test first. The cluster lead wins.
+4,debugging,Find the root cause before a fix.

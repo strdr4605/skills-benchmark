@@ -1,0 +1,28 @@
+category,stage,name,blurb
+requirements,plan,Requirements,"Interview, grill or spec the problem before code."
+planning,plan,Planning,Write and run a step-by-step plan.
+research,plan,Research,"Read code, docs or the web to answer a question."
+architecture,design,Architecture,"Module boundaries, interfaces, ADRs."
+domain-model,design,Domain model,"Glossary, entities, state machines."
+ui-design,design,UI design,"Visual design, design systems, taste."
+prototyping,design,Prototyping,Throwaway spikes to learn fast.
+implementation,build,Implementation,Feature workflows from spec to code.
+frontend,build,Frontend,"React, Next.js, CSS, accessibility."
+stack-pack,build,Stack packs,Language and framework rule sets.
+writing,build,Writing,"Docs, READMEs, technical prose."
+tdd,test,Test-first,Red-green-refactor loops.
+verification,test,Verification,Prove a change works before you claim it.
+browser-qa,test,Browser QA,Drive a browser to test a web app.
+code-review,test,Code review,Review a diff or respond to a review.
+vcs-pr,deploy,VCS and PRs,"Commits, PR bodies, merges. jj first."
+release-ci,deploy,Release and CI,"CI fixes, releases, changelogs."
+security,deploy,Security,Security review and secrets hygiene.
+debugging,maintain,Debugging,Find the root cause of a bug.
+cleanup,maintain,Cleanup,"Refactor, delete dead code, remove slop."
+performance,maintain,Performance,Measure and fix slow paths.
+learning,maintain,Retro and learning,"Retros, reflection, encode lessons."
+orchestration,anytime,Orchestration,"Routers, parallel agents, autonomous loops."
+context-tokens,anytime,Context and tokens,"Output compression, memory, context hygiene."
+meta-skills,anytime,Meta skills,"Write, test or install skills."
+office-docs,anytime,Office documents,"PDF, DOCX, XLSX, PPTX files."
+communication,anytime,Communication,"Messages, status reports, explanations."
